@@ -30,7 +30,9 @@ def node_cycler():
     # edit length to depend on node wanted
     while i < len(node_two):
         for x in node_one:
-            print("node1 is", node_two[i], "and node2 is", x, "and they occurred", data_miner(node_two[i], x))
+            print(node_two[i], "|", x, data_miner(node_two[i], x))
+            # print("node1 is", node_two[i], "and node2 is", x, "and they occurred", data_miner(node_two[i], x))
+
         i += 1
 
 
