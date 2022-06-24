@@ -17,18 +17,20 @@ def data_miner(node1, node2):
             count_both += 1
         if node1 in line:
             count_single += 1
-    print(count_both / count_single)
+    # print(count_both / count_single)
+    return count_both / count_single
 
 
 def node_cycler():
     # list can be changed whenever
+    # pulled from data in another document
     node_one = ["covid", "fuck", "government", "mask", "money", "news", "old", "public", "time", "vaccine", "work", "years"]
     node_two = ["covid", "fuck", "government", "mask", "money", "news", "old", "public", "time", "vaccine", "work", "years"]
     i = 0
     # edit length to depend on node wanted
     while i < len(node_two):
         for x in node_one:
-            data_miner(node_two[i], x)
+            print("node1 is", node_two[i], "and node2 is", x, "and they occurred", data_miner(node_two[i], x))
         i += 1
 
 
