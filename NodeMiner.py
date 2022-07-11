@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import community as community_louvain
 from matplotlib import cm
 from networkx import circular_layout
+import sys
+sys.setrecursionlimit(100000)
 # import numpy as np
 
 
@@ -376,18 +378,16 @@ def grapher_circ():
                 w_list.append(w)
             else:
                 continue
-            g.add_edge(node_one[i], x, color=c_list[i], weight=w_list[j])
+            g.add_edge(node_one[i], x, weight=w_list[j])
             print(w_list[j])
-            walk_length = recursive_call(g, node_one[i], "fuck", 0)
-            print(walk_length)
             j += 1
         i += 1
     # print(g.number_of_nodes())
     # print(g.number_of_edges())
-    colors = nx.get_edge_attributes(g, 'color').values()
+    # colors = nx.get_edge_attributes(g, 'color').values()
     weights = nx.get_edge_attributes(g, 'weight').values()
     pos = circular_layout(g)
-    nx.draw(g, pos, edge_color=list(colors), width=list(weights), with_labels=True, node_color='lightblue')
+    nx.draw(g, pos, width=list(weights), with_labels=True, node_color='lightblue')
     plt.show()
 
 
@@ -639,7 +639,7 @@ def lou_weight_graph():
     cmap = cm.get_cmap('viridis', max(partition.values())+1)
     nx.draw_networkx_labels(g, pos=pos)
     nx.draw_networkx_nodes(g, pos, partition.keys(), cmap=cmap, node_size=50, node_color=list(partition.values()))
-    nx.draw_networkx_edges(g, pos, width=list(weights), alpha=1.0)
+    nx.draw_networkx_edges(g, pos, width=list(weights), alpha=0.5)
     # print(G.number_of_nodes())
     # print(G.number_of_edges())
     plt.show()
