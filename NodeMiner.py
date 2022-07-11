@@ -3,6 +3,7 @@ import networkx as nx
 import math
 import matplotlib.pyplot as plt
 import community as community_louvain
+from matplotlib import cm
 from networkx import circular_layout
 # import numpy as np
 
@@ -635,8 +636,9 @@ def lou_weight_graph():
     weights = nx.get_edge_attributes(g, 'weight').values()
     pos = nx.spring_layout(g)
     partition = community_louvain.best_partition(g)
+    cmap = cm.get_cmap('viridis', max(partition.values())+1)
     nx.draw_networkx_labels(g, pos=pos)
-    nx.draw_networkx_nodes(g, pos, partition.keys(), node_size=50, node_color=list(partition.values()))
+    nx.draw_networkx_nodes(g, pos, partition.keys(), cmap=cmap, node_size=50, node_color=list(partition.values()))
     nx.draw_networkx_edges(g, pos, width=list(weights), alpha=1.0)
     # print(G.number_of_nodes())
     # print(G.number_of_edges())
@@ -649,13 +651,13 @@ if __name__ == "__main__":
     # data_miner(input1, input2)
 
     # this allows you to find the hopping distance a list of nodes
-    node_hopper()
+    # node_hopper()
 
     # this is for when you have a list of nodes, and you need to cycle through them
     # node_cycler()
 
     # This is used to find the weights of the lines for the diagram
-    # lou_weight_graph()
+    lou_weight_graph()
 
     # this graphs in a circle and shows every line with the ability to show in colors
     # grapher_circ()
