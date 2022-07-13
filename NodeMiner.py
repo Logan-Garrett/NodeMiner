@@ -294,9 +294,10 @@ def node_hopper():
 
                 # print(hop_list)
 
-    named_tuple = time.localtime()
-    time_string = time.strftime("%H:%M:%S", named_tuple)
-    filename = time_string + '_' + 'file' + ".csv"
+    # named_tuple = time.localtime()
+    # time_string = time.strftime("%H:%M:%S", named_tuple)
+    # filename = time_string + '_' + 'file' + ".csv"
+    filename = "conspiracy_hopper" + ".csv"
     with open(filename, 'w+', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(hop_list)
