@@ -826,16 +826,19 @@ def compare_hop_dist():
         cc = corona_list[i] - conspiracy_list[i]
         cc_list.append(cc)
         print(cc_list)
+        i += 1
     while i < len(corona_list):
         ca_list = []
         ca = corona_list[i] - ask_list[i]
         ca_list.append(ca)
         print(ca_list)
+        i += 1
     while i < len(conspiracy_list):
         coa_list = []
         coa = conspiracy_list[i] - ask_list[i]
         coa_list.append(coa)
         print(coa_list)
+        i += 1
 
 
 # choose whichever is needed
