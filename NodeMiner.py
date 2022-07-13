@@ -52,25 +52,26 @@ def recursive_call(g, node_one, word, walk_length):
 
 
 def data_miner(node1, node2):
-    i = 0
+    # i = 0
     file_choice = ["coronavirus_comment_data", "conspiracy_comment_data", "askReddit_comment_data"]
-    while i < len(file_choice):
-        file = open(file_choice[i] + ".csv", "r")
+    # this fix
+    # while i < len(file_choice):
+    file = open(file_choice[0] + ".csv", "r")
         # setting the flag to false
         # setting index to start on first one
-        index = 0
+    index = 0
         # setting count at 0 to find data at start
-        count_both = 0
-        count_single = 0
-        for line in file:
-            index += 1
+    count_both = 0
+    count_single = 0
+    for line in file:
+        index += 1
     # checks to see if both are met and if so flips flag and counts
-            if node1 in line and node2 in line:
-                count_both += 1
-            if node1 in line:
-                count_single += 1
+        if node1 in line and node2 in line:
+            count_both += 1
+        if node1 in line:
+            count_single += 1
     # print(count_both / count_single)
-        return count_both / count_single
+    return count_both / count_single
 
 
 def node_cycler():
@@ -262,6 +263,7 @@ def node_hopper():
         "year"]
     w_list = []
     hop_list = []
+    prehop_list = []
     g = nx.DiGraph()
     g.add_nodes_from(node_one)
     i = 0
@@ -281,19 +283,26 @@ def node_hopper():
         for m in node_two:
             walk_list = []
             if n != m:
-                for i in range(1000):
+                for i in range(1):
                     walk_length = recursive_call(g.copy(), n, m, 0)
                     walk_list.append(walk_length)
-                print(n, m, sum(walk_list)/len(walk_list))
+                # print(n, m, sum(walk_list)/len(walk_list))
                 y = sum(walk_list) / len(walk_list)
-                hop_list.append(y)
+                prehop_list.append(y)
+                hop_list.append(prehop_list)
+                prehop_list = []
+
+                # print(hop_list)
 
     named_tuple = time.localtime()
     time_string = time.strftime("%H:%M:%S", named_tuple)
-    file = open(time_string + ".csv", 'w', newline='')
-    with file:
-        write = csv.writer(file)
-        write.writerows(hop_list)
+    filename = time_string + '_' + 'file' + ".csv"
+    with open(filename, 'w+', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerows(hop_list)
+
+    # for h in hop_list:
+    #     print(h)
 
 
 def grapher_circ():
