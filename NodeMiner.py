@@ -1,4 +1,7 @@
+import csv
 import random
+from datetime import time, date, datetime
+import time
 import networkx as nx
 import math
 import matplotlib.pyplot as plt
@@ -6,11 +9,8 @@ import community as community_louvain
 from matplotlib import cm
 from networkx import circular_layout
 from sklearn.cluster import KMeans
-from sklearn import metrics
 from scipy.spatial.distance import cdist
-import cluster
 import numpy as np
-import pandas as pd
 import sys
 sys.setrecursionlimit(100000)
 
@@ -52,22 +52,25 @@ def recursive_call(g, node_one, word, walk_length):
 
 
 def data_miner(node1, node2):
-    file = open("conspiracy_comment_data.csv", "r")
-    # setting the flag to false
-    # setting index to start on first one
-    index = 0
-    # setting count at 0 to find data at start
-    count_both = 0
-    count_single = 0
-    for line in file:
-        index += 1
+    i = 0
+    file_choice = ["coronavirus_comment_data", "conspiracy_comment_data", "askReddit_comment_data"]
+    while i < len(file_choice):
+        file = open(file_choice[i] + ".csv", "r")
+        # setting the flag to false
+        # setting index to start on first one
+        index = 0
+        # setting count at 0 to find data at start
+        count_both = 0
+        count_single = 0
+        for line in file:
+            index += 1
     # checks to see if both are met and if so flips flag and counts
-        if node1 in line and node2 in line:
-            count_both += 1
-        if node1 in line:
-            count_single += 1
+            if node1 in line and node2 in line:
+                count_both += 1
+            if node1 in line:
+                count_single += 1
     # print(count_both / count_single)
-    return count_both / count_single
+        return count_both / count_single
 
 
 def node_cycler():
@@ -258,6 +261,7 @@ def node_hopper():
         "world",
         "year"]
     w_list = []
+    hop_list = []
     g = nx.DiGraph()
     g.add_nodes_from(node_one)
     i = 0
@@ -277,10 +281,19 @@ def node_hopper():
         for m in node_two:
             walk_list = []
             if n != m:
-                for i in range(1):
+                for i in range(1000):
                     walk_length = recursive_call(g.copy(), n, m, 0)
                     walk_list.append(walk_length)
                 print(n, m, sum(walk_list)/len(walk_list))
+                y = sum(walk_list) / len(walk_list)
+                hop_list.append(y)
+
+    named_tuple = time.localtime()
+    time_string = time.strftime("%H:%M:%S", named_tuple)
+    file = open(time_string + ".csv", 'w', newline='')
+    with file:
+        write = csv.writer(file)
+        write.writerows(hop_list)
 
 
 def grapher_circ():
@@ -779,7 +792,6 @@ def elbow_grapher():
     for k in K:
         kmeanModel = KMeans(n_clusters=k).fit(X)
         kmeanModel.fit(X)
-
         distortions.append(sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0])
         inertias.append(kmeanModel.inertia_)
         mapping1[k] = sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0]
@@ -798,13 +810,41 @@ def elbow_grapher():
     plt.show()
 
 
+def compare_hop_dist():
+    with open('conspiracy_hopper_data.csv') as conspiracy_file:
+        reader = csv.reader(conspiracy_file)
+        conspiracy_list = list(reader)
+    with open('coronavirus_hopper_data.csv') as corona_file:
+        reader = csv.reader(corona_file)
+        corona_list = list(reader)
+    with open('askReddit_hopper_data.csv') as ask_file:
+        reader = csv.reader(ask_file)
+        ask_list = list(reader)
+    i = 0
+    while i < len(corona_list):
+        cc_list = []
+        cc = corona_list[i] - conspiracy_list[i]
+        cc_list.append(cc)
+        print(cc_list)
+    while i < len(corona_list):
+        ca_list = []
+        ca = corona_list[i] - ask_list[i]
+        ca_list.append(ca)
+        print(ca_list)
+    while i < len(conspiracy_list):
+        coa_list = []
+        coa = conspiracy_list[i] - ask_list[i]
+        coa_list.append(coa)
+        print(coa_list)
+
+
 # choose whichever is needed
 if __name__ == "__main__":
     # this allows you to choose two words and find the frequency
     # data_miner(input1, input2)
 
     # this allows you to find the hopping distance a list of nodes
-    # node_hopper()
+    node_hopper()
 
     # this is for when you have a list of nodes, and you need to cycle through them
     # node_cycler()
@@ -818,5 +858,9 @@ if __name__ == "__main__":
     # This is used to find the distance of the nodes based on matplot graph and weighted communities of nodes
     # lou_weight_nodes()
 
-    # my elbow thingy
-    elbow_grapher()
+    # elbow grapher
+    # elbow_grapher()
+
+    # compares the diff reddits in terms of data
+    # compare_hop_dist()
+    # pass
