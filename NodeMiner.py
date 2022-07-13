@@ -5,9 +5,14 @@ import matplotlib.pyplot as plt
 import community as community_louvain
 from matplotlib import cm
 from networkx import circular_layout
+from sklearn.cluster import KMeans
+from sklearn import metrics
+from scipy.spatial.distance import cdist
+import cluster
+import numpy as np
+import pandas as pd
 import sys
 sys.setrecursionlimit(100000)
-# import numpy as np
 
 
 def normalize(edges):
@@ -612,7 +617,9 @@ def lou_weight_graph():
     # w_list = []
     # v_list = []
     z_list = []
+    # find new graph
     g = nx.Graph()
+    # g = nx.karate_club_graph()
     g.add_nodes_from(node_one)
     i = 0
     j = 0
@@ -623,25 +630,171 @@ def lou_weight_graph():
             if w != 1:
                 # w_list.append(w)
                 # v_list.append(v)
+                # try just w again
                 z = (w + v)/2
                 z_list.append(z)
             else:
                 continue
             g.add_edge(node_one[i], x, weight=z_list[j])
-            # print(w_list[j])
+            # g.add_edge(node_one[i], x, weight=z_list[j])
+            print(z_list[j])
             # print(v_list[j])
             j += 1
         i += 1
     # print(z_list)
     weights = nx.get_edge_attributes(g, 'weight').values()
     pos = nx.spring_layout(g)
-    partition = community_louvain.best_partition(g)
+    partition = community_louvain.best_partition(g, resolution=4)
     cmap = cm.get_cmap('viridis', max(partition.values())+1)
     nx.draw_networkx_labels(g, pos=pos)
-    nx.draw_networkx_nodes(g, pos, partition.keys(), cmap=cmap, node_size=50, node_color=list(partition.values()))
+    nx.draw_networkx_nodes(g, pos, partition.keys(), cmap=cmap, node_size=42, node_color=list(partition.values()))
     nx.draw_networkx_edges(g, pos, width=list(weights), alpha=0.5)
     # print(G.number_of_nodes())
     # print(G.number_of_edges())
+    plt.show()
+
+
+def elbow_grapher():
+    node_one = ["america",
+        "believe",
+        "children",
+        "companies",
+        "country",
+        "covid",
+        "days",
+        "death",
+        "died",
+        "different",
+        "free",
+        "friends",
+        "fuck",
+        "gets",
+        "government",
+        "hate",
+        "hell",
+        "help",
+        "instead",
+        "kids",
+        "lets",
+        "life",
+        "little",
+        "live",
+        "love",
+        "money",
+        "need",
+        "news",
+        "people",
+        "problem",
+        "public",
+        "seems",
+        "sick",
+        "side",
+        "state",
+        "stupid",
+        "taking",
+        "time",
+        "trying",
+        "vaccine",
+        "work",
+        "world",
+        "year"]
+    node_two = ["america",
+        "believe",
+        "children",
+        "companies",
+        "country",
+        "covid",
+        "days",
+        "death",
+        "died",
+        "different",
+        "free",
+        "friends",
+        "fuck",
+        "gets",
+        "government",
+        "hate",
+        "hell",
+        "help",
+        "instead",
+        "kids",
+        "lets",
+        "life",
+        "little",
+        "live",
+        "love",
+        "money",
+        "need",
+        "news",
+        "people",
+        "problem",
+        "public",
+        "seems",
+        "sick",
+        "side",
+        "state",
+        "stupid",
+        "taking",
+        "time",
+        "trying",
+        "vaccine",
+        "work",
+        "world",
+        "year"]
+    w_list = []
+    v_list = []
+    # z_list = []
+    i = 0
+    j = 0
+    while i < len(node_one):
+        for x in node_two:
+            w = data_miner(node_one[i], x)
+            v = data_miner(x, node_two[i])
+            if w != 1:
+                w_list.append(w)
+                v_list.append(v)
+                # try just w again
+                # z = np.array(list(zip(w_list, v_list))).reshape(len(w_list), 2)
+                # z_list.append(z)
+                # X = np.array(list(zip(w_list, v_list))).reshape(len(w_list), 2)
+            else:
+                continue
+            j += 1
+        i += 1
+    x1 = np.array(w_list)
+    x2 = np.array(v_list)
+    X = np.array(list(zip(x1, x2))).reshape(len(x1), 2)
+    # graphs on diagram to show clustering
+    # plt.plot()
+    # plt.xlim([0.00000000000000000, 1])
+    # plt.ylim([0.00000000000000000, 1])
+    # plt.title('Dataset')
+    # plt.scatter(w_list, v_list)
+    # plt.show()
+    distortions = []
+    inertias = []
+    mapping1 = {}
+    mapping2 = {}
+    K = range(1, 10)
+    for k in K:
+        kmeanModel = KMeans(n_clusters=k).fit(X)
+        kmeanModel.fit(X)
+
+        distortions.append(sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0])
+        inertias.append(kmeanModel.inertia_)
+        mapping1[k] = sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0]
+        mapping2[k] = kmeanModel.inertia_
+    # Distortion graph
+    # plt.plot(K, distortions, 'bx-')
+    # plt.xlabel('Values of K')
+    # plt.ylabel('Distortion')
+    # plt.title('The Elbow Method using Distortion')
+    # plt.show()
+    # inertia graph
+    plt.plot(K, inertias, 'bx-')
+    plt.xlabel('Values of K')
+    plt.ylabel('Inertia')
+    plt.title('The Elbow Method using Inertia')
     plt.show()
 
 
@@ -657,7 +810,7 @@ if __name__ == "__main__":
     # node_cycler()
 
     # This is used to find the weights of the lines for the diagram
-    lou_weight_graph()
+    # lou_weight_graph()
 
     # this graphs in a circle and shows every line with the ability to show in colors
     # grapher_circ()
@@ -665,3 +818,5 @@ if __name__ == "__main__":
     # This is used to find the distance of the nodes based on matplot graph and weighted communities of nodes
     # lou_weight_nodes()
 
+    # my elbow thingy
+    elbow_grapher()
