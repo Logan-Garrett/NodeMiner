@@ -784,6 +784,7 @@ def elbow_grapher():
                 continue
             j += 1
         i += 1
+        # fix these
     x1 = np.array(w_list)
     x2 = np.array(v_list)
     X = np.array(list(zip(x1, x2))).reshape(len(x1), 2)
