@@ -11,6 +11,7 @@ from networkx import circular_layout
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import cdist
 import numpy as np
+import pandas as pd
 import sys
 sys.setrecursionlimit(100000)
 
@@ -56,7 +57,7 @@ def data_miner(node1, node2):
     file_choice = ["coronavirus_comment_data", "conspiracy_comment_data", "askReddit_comment_data"]
     # this fix
     # while i < len(file_choice):
-    file = open(file_choice[0] + ".csv", "r")
+    file = open(file_choice[2] + ".csv", "r")
         # setting the flag to false
         # setting index to start on first one
     index = 0
@@ -168,8 +169,10 @@ def node_cycler():
     while i < len(node_one):
         for x in node_two:
             # print(data_miner(node_one[i], x))
-            # print(node_two[i], "|", x, data_miner(node_two[i], x))
-            print("node1 is", node_two[i], "and node2 is", x, "and they occurred", data_miner(node_two[i], x))
+            if data_miner(node_two[i], x) != 1.0:
+                print(node_two[i], x, data_miner(node_two[i], x))
+                # print(node_two[i], x)
+            # print("node1 is", node_two[i], "and node2 is", x, "and they occurred", data_miner(node_two[i], x))
         i += 1
 
 
@@ -283,11 +286,13 @@ def node_hopper():
         for m in node_two:
             walk_list = []
             if n != m:
-                for i in range(1):
+                for i in range(500):
                     walk_length = recursive_call(g.copy(), n, m, 0)
                     walk_list.append(walk_length)
-                # print(n, m, sum(walk_list)/len(walk_list))
+                print(n, m, sum(walk_list)/len(walk_list))
                 y = sum(walk_list) / len(walk_list)
+                prehop_list.append(n)
+                prehop_list.append(m)
                 prehop_list.append(y)
                 hop_list.append(prehop_list)
                 prehop_list = []
@@ -297,7 +302,8 @@ def node_hopper():
     # named_tuple = time.localtime()
     # time_string = time.strftime("%H:%M:%S", named_tuple)
     # filename = time_string + '_' + 'file' + ".csv"
-    filename = "conspiracy_hopper" + ".csv"
+    name = "date_name"
+    filename = name + "_data" + ".csv"
     with open(filename, 'w+', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerows(hop_list)
@@ -419,137 +425,6 @@ def grapher_circ():
     plt.show()
 
 
-def lou_weight_nodes():
-    node_one = ["america",
-        "believe",
-        "children",
-        "companies",
-        "country",
-        "covid",
-        "days",
-        "death",
-        "died",
-        "different",
-        "free",
-        "friends",
-        "fuck",
-        "gets",
-        "government",
-        "hate",
-        "hell",
-        "help",
-        "instead",
-        "kids",
-        "lets",
-        "life",
-        "little",
-        "live",
-        "love",
-        "money",
-        "need",
-        "news",
-        "people",
-        "problem",
-        "public",
-        "seems",
-        "sick",
-        "side",
-        "state",
-        "stupid",
-        "taking",
-        "time",
-        "trying",
-        "vaccine",
-        "work",
-        "world",
-        "year"]
-    node_two = ["america",
-        "believe",
-        "children",
-        "companies",
-        "country",
-        "covid",
-        "days",
-        "death",
-        "died",
-        "different",
-        "free",
-        "friends",
-        "fuck",
-        "gets",
-        "government",
-        "hate",
-        "hell",
-        "help",
-        "instead",
-        "kids",
-        "lets",
-        "life",
-        "little",
-        "live",
-        "love",
-        "money",
-        "need",
-        "news",
-        "people",
-        "problem",
-        "public",
-        "seems",
-        "sick",
-        "side",
-        "state",
-        "stupid",
-        "taking",
-        "time",
-        "trying",
-        "vaccine",
-        "work",
-        "world",
-        "year"]
-    w_list = []
-    g = nx.Graph()
-    g.add_nodes_from(node_one)
-    i = 0
-    j = 0
-    while i < len(node_one):
-        for x in node_two:
-            w = data_miner(node_one[i], x)
-            y = data_miner(x, node_one[i])
-            if w != 1:
-                z = (w + y)/2
-                w_list.append(z)
-            else:
-                continue
-            g.add_edge(node_one[i], x, weight=w_list[j])
-            # print(w_list[j])
-            j += 1
-        i += 1
-    # weights = nx.get_edge_attributes(g, 'weight').values()
-    pos = nx.spring_layout(g)
-    # partition = community_louvain.best_partition(g)
-    # edge_labels = nx.get_edge_attributes(G, 'weight')
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels)
-    # nx.draw_networkx_labels(g, pos=pos)
-    # nx.draw_networkx_nodes(g, pos, partition.keys(), node_size=12, node_color=list(partition.values()))
-    # nx.draw_networkx_edges(g, pos, width=list(weights), alpha=1.0)
-    # finds the lengths
-    # using E algorithm
-    lengths = {}
-    for edge in g.edges():
-        start_node = edge[0]
-        end_node = edge[1]
-        lengths[edge] = round(math.sqrt(((pos[end_node][1]-pos[start_node][1])**2)+((pos[end_node][0]-pos[start_node][0])**2)), 2)
-    # print(lengths)
-    i = 1
-    for key in lengths:
-        print(i, end="")
-        print(key, lengths[key])
-        i += 1
-    # print(g.number_of_nodes())
-    # print(g.number_of_edges())
-    plt.show()
-
-
 def lou_weight_graph():
     node_one = ["america",
         "believe",
@@ -667,157 +542,13 @@ def lou_weight_graph():
     # print(z_list)
     weights = nx.get_edge_attributes(g, 'weight').values()
     pos = nx.spring_layout(g)
-    partition = community_louvain.best_partition(g, resolution=4)
+    partition = community_louvain.best_partition(g)
     cmap = cm.get_cmap('viridis', max(partition.values())+1)
     nx.draw_networkx_labels(g, pos=pos)
     nx.draw_networkx_nodes(g, pos, partition.keys(), cmap=cmap, node_size=42, node_color=list(partition.values()))
     nx.draw_networkx_edges(g, pos, width=list(weights), alpha=0.5)
     # print(G.number_of_nodes())
     # print(G.number_of_edges())
-    plt.show()
-
-
-def elbow_grapher():
-    node_one = ["america",
-        "believe",
-        "children",
-        "companies",
-        "country",
-        "covid",
-        "days",
-        "death",
-        "died",
-        "different",
-        "free",
-        "friends",
-        "fuck",
-        "gets",
-        "government",
-        "hate",
-        "hell",
-        "help",
-        "instead",
-        "kids",
-        "lets",
-        "life",
-        "little",
-        "live",
-        "love",
-        "money",
-        "need",
-        "news",
-        "people",
-        "problem",
-        "public",
-        "seems",
-        "sick",
-        "side",
-        "state",
-        "stupid",
-        "taking",
-        "time",
-        "trying",
-        "vaccine",
-        "work",
-        "world",
-        "year"]
-    node_two = ["america",
-        "believe",
-        "children",
-        "companies",
-        "country",
-        "covid",
-        "days",
-        "death",
-        "died",
-        "different",
-        "free",
-        "friends",
-        "fuck",
-        "gets",
-        "government",
-        "hate",
-        "hell",
-        "help",
-        "instead",
-        "kids",
-        "lets",
-        "life",
-        "little",
-        "live",
-        "love",
-        "money",
-        "need",
-        "news",
-        "people",
-        "problem",
-        "public",
-        "seems",
-        "sick",
-        "side",
-        "state",
-        "stupid",
-        "taking",
-        "time",
-        "trying",
-        "vaccine",
-        "work",
-        "world",
-        "year"]
-    w_list = []
-    v_list = []
-    # z_list = []
-    i = 0
-    j = 0
-    while i < len(node_one):
-        for x in node_two:
-            w = data_miner(node_one[i], x)
-            v = data_miner(x, node_two[i])
-            if w != 1:
-                w_list.append(w)
-                v_list.append(v)
-                # try just w again
-                # z = np.array(list(zip(w_list, v_list))).reshape(len(w_list), 2)
-                # z_list.append(z)
-                # X = np.array(list(zip(w_list, v_list))).reshape(len(w_list), 2)
-            else:
-                continue
-            j += 1
-        i += 1
-        # fix these
-    x1 = np.array(w_list)
-    x2 = np.array(v_list)
-    X = np.array(list(zip(x1, x2))).reshape(len(x1), 2)
-    # graphs on diagram to show clustering
-    # plt.plot()
-    # plt.xlim([0.00000000000000000, 1])
-    # plt.ylim([0.00000000000000000, 1])
-    # plt.title('Dataset')
-    # plt.scatter(w_list, v_list)
-    # plt.show()
-    distortions = []
-    inertias = []
-    mapping1 = {}
-    mapping2 = {}
-    K = range(1, 10)
-    for k in K:
-        kmeanModel = KMeans(n_clusters=k).fit(X)
-        kmeanModel.fit(X)
-        distortions.append(sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0])
-        inertias.append(kmeanModel.inertia_)
-        mapping1[k] = sum(np.min(cdist(X, kmeanModel.cluster_centers_, 'euclidean'), axis=1)) / X.shape[0]
-        mapping2[k] = kmeanModel.inertia_
-    # Distortion graph
-    # plt.plot(K, distortions, 'bx-')
-    # plt.xlabel('Values of K')
-    # plt.ylabel('Distortion')
-    # plt.title('The Elbow Method using Distortion')
-    # plt.show()
-    # inertia graph
-    plt.plot(K, inertias, 'bx-')
-    plt.xlabel('Values of K')
-    plt.ylabel('Inertia')
-    plt.title('The Elbow Method using Inertia')
     plt.show()
 
 
@@ -831,25 +562,55 @@ def compare_hop_dist():
     with open('askReddit_hopper_data.csv') as ask_file:
         reader = csv.reader(ask_file)
         ask_list = list(reader)
+    cc_list = []
+    ca_list = []
+    cona_list = []
     i = 0
+    j = 0
     while i < len(corona_list):
-        cc_list = []
-        cc = corona_list[i] - conspiracy_list[i]
-        cc_list.append(cc)
-        print(cc_list)
+        precc_list = []
+        c = float(corona_list[i][j]) - float(conspiracy_list[i][j])
+        precc_list.append(c)
+        cc_list.append(precc_list)
+        print(c)
         i += 1
-    while i < len(corona_list):
-        ca_list = []
-        ca = corona_list[i] - ask_list[i]
-        ca_list.append(ca)
-        print(ca_list)
-        i += 1
+        precc_list = []
+        filename = "CoronavirusMinusConspiracy_data" + ".csv"
+        with open(filename, 'w+', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerows(cc_list)
+    # cona - askReddit
+    i = 0
+    j = 0
     while i < len(conspiracy_list):
-        coa_list = []
-        coa = conspiracy_list[i] - ask_list[i]
-        coa_list.append(coa)
-        print(coa_list)
+        precona_list = []
+        c = float(conspiracy_list[i][j]) - float(ask_list[i][j])
+        precona_list.append(c)
+        cona_list.append(precona_list)
+        print(c)
         i += 1
+        precona_list = []
+        filename = "ConspiracyMinusAskReddit_data" + ".csv"
+        with open(filename, 'w+', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerows(cona_list)
+    # Corona - askReddit
+    i = 0
+    j = 0
+    while i < len(corona_list):
+        preca_list = []
+        c = float(corona_list[i][j]) - float(ask_list[i][j])
+        preca_list.append(c)
+        ca_list.append(preca_list)
+        print(c)
+        i += 1
+        preca_list = []
+        filename = "CoronaMinusAskReddit_data" + ".csv"
+        with open(filename, 'w+', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerows(ca_list)
+
+    # print(cc_list)
 
 
 # choose whichever is needed
@@ -858,10 +619,10 @@ if __name__ == "__main__":
     # data_miner(input1, input2)
 
     # this allows you to find the hopping distance a list of nodes
-    node_hopper()
+    # node_hopper()
 
     # this is for when you have a list of nodes, and you need to cycle through them
-    # node_cycler()
+    node_cycler()
 
     # This is used to find the weights of the lines for the diagram
     # lou_weight_graph()
@@ -869,11 +630,6 @@ if __name__ == "__main__":
     # this graphs in a circle and shows every line with the ability to show in colors
     # grapher_circ()
 
-    # This is used to find the distance of the nodes based on matplot graph and weighted communities of nodes
-    # lou_weight_nodes()
-
-    # elbow grapher
-    # elbow_grapher()
 
     # compares the diff reddits in terms of data
     # compare_hop_dist()
